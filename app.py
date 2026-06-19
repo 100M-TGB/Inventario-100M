@@ -894,10 +894,21 @@ async def _fetch_codisys_all(desde: str, hasta: str) -> tuple:
     try:
         from playwright.async_api import async_playwright
     except ImportError:
-        return None, None
+        return None, None, None, "playwright no instalado"
 
-    # Leer credenciales directamente del fichero (evita caché de os.environ)
+    # Leer credenciales: 1) st.secrets (cloud) 2) os.environ 3) .env local
     def _leer_cred(clave):
+        # Streamlit Secrets
+        try:
+            if clave in st.secrets:
+                return str(st.secrets[clave])
+        except Exception:
+            pass
+        # Variables de entorno (cargadas por _cargar_env)
+        v = os.environ.get(clave, "")
+        if v:
+            return v
+        # Fichero .env local
         carpeta = Path(__file__).parent
         for nombre in [".env", ".env.txt", "env.txt"]:
             p = carpeta / nombre
@@ -914,7 +925,7 @@ async def _fetch_codisys_all(desde: str, hasta: str) -> tuple:
     print(f"DEBUG: USER='{codisys_user}' PASS_len={len(codisys_pass)}")
 
     if not codisys_user or not codisys_pass:
-        return None, None, f"Credenciales vacías. USER='{codisys_user}'"
+        return None, None, None, f"Credenciales vacías. USER='{codisys_user}'"
 
     import tempfile
     tmp = Path(tempfile.mkdtemp())
@@ -2080,20 +2091,21 @@ with tab_historial:
                             "Final": v.get("inv_final", 0),
                             "Cons Real": v.get("cons_real", 0),
                             "Consumo": v.get("consumo_cod", 0),
-                            "Dif": v.get("dif_uds", 0),
                             "Dif €": v.get("dif_eur", 0),
                             "Dif %": v.get("dif_pct", 0),
                         })
                     _df_h = pd.DataFrame(_rows_h)
                     _perfil_h = _h.get("perfil", "")
                     _tiene_bib_h = any(v.get("biberones", 0) for v in _prods_h.values())
-                    # prods como lista de dicts con 'nombre'
                     _prods_list_h = [{"nombre": k} for k in _prods_h.keys()]
                     _html_h = _build_result_html(
                         _df_h, _prods_list_h, _tiene_bib_h, False,
                         _perfil_h, _ventas_h, _dif_eur_h, _dif_pct_h,
-                                  _h.get("desde", _h.get("fecha", "")),
+                        _h.get("desde", _h.get("fecha", "")),
                         _h.get("hasta", _h.get("fecha", "")),
                         cod_map=COD_CODISYS_MAP,
+                    )
+                    st.markdown(_html_h, unsafe_allow_html=True)
+               cod_map=COD_CODISYS_MAP,
                     )
                     st.markdown(_html_h, unsafe_allow_html=True)
