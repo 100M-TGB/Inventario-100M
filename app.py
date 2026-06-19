@@ -2106,6 +2106,3 @@ with tab_historial:
                         cod_map=COD_CODISYS_MAP,
                     )
                     st.markdown(_html_h, unsafe_allow_html=True)
-               cod_map=COD_CODISYS_MAP,
-                    )
-                    st.markdown(_html_h, unsafe_allow_html=True)
