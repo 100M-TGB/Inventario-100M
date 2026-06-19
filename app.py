@@ -935,15 +935,14 @@ async def _fetch_codisys_all(desde: str, hasta: str) -> tuple:
 
     try:
         async with async_playwright() as p:
+            import platform as _platform
+            _is_linux = _platform.system() == "Linux"
+            _launch_args = ["--disable-dev-shm-usage", "--disable-gpu"]
+            if _is_linux:
+                _launch_args += ["--no-sandbox", "--disable-setuid-sandbox"]
             browser = await p.chromium.launch(
-                headless=True,
-                args=[
-                    "--no-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--disable-gpu",
-                    "--disable-setuid-sandbox",
-                    "--single-process",
-                ]
+                headless=_is_linux,
+                args=_launch_args,
             )
             context = await browser.new_context(
                 accept_downloads=True,
