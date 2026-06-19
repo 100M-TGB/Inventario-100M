@@ -49,7 +49,7 @@ _cargar_env()
 
 # Instalar Chromium automáticamente si no está disponible (Streamlit Cloud)
 import subprocess as _sp
-_sp.run(["playwright", "install", "chromium"], capture_output=True)
+_sp.run(["playwright", "install", "chromium", "--with-deps"], capture_output=True)
 
 # ═══════════════════════════════════════════════════════════
 #  CONFIGURACIÓN DE PRODUCTOS
