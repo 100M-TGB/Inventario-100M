@@ -1956,9 +1956,8 @@ with tab_nuevo:
             error_cod = err1 or err2
 
             if datos_consumos is None and datos_compras is None and datos_ventas is None:
-                st.warning("⚠️ No se pudo obtener datos de Codisys.")
-                if error_cod:
-                    st.expander("🔍 Ver error técnico").write(error_cod)
+                _err_short = (error_cod or "sin detalles")[:800]
+                st.error(f"❌ Codisys falló: {_err_short}")
             else:
                 rangos_txt = f"{desde_str} → {hasta_str}"
                 ok_c = f"{len(datos_consumos)} productos" if datos_consumos else "sin datos"
