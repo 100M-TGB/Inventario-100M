@@ -935,7 +935,16 @@ async def _fetch_codisys_all(desde: str, hasta: str) -> tuple:
 
     try:
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            browser = await p.chromium.launch(
+                headless=True,
+                args=[
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                    "--disable-setuid-sandbox",
+                    "--single-process",
+                ]
+            )
             context = await browser.new_context(
                 accept_downloads=True,
                 viewport={"width": 1280, "height": 900}
